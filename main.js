@@ -1,9 +1,6 @@
 const {addresses} = require('./addresses.json')
 const {faker} = require('@faker-js/faker')
 
-// For help writing plugins, visit the documentation to get started:
-//   https://docs.insomnia.rest/insomnia/introduction-to-plugins
-
 const addressFields = [
   "address1",
   "address2",
@@ -23,6 +20,9 @@ const mapOptions = (options) =>
 
 const titleCase = (str) =>
   str.replace(/(^\w|[A-Z0-9])/g, (match) => ` ${match.toUpperCase()}`).trim();
+
+const randomNumberBetween = (min, max) => Math.floor(Math.random() * (max - min + 1) + min)
+
 
 const generateFakerData = (type) => {
   switch (type) {
@@ -52,13 +52,15 @@ module.exports.templateTags = [{
       if (fakerFields.includes(field)) {
         return generateFakerData(field)
       } else {
-        const curDate = new Date();
-        const hours = Math.ceil(curDate.getHours() / 10) * 10;
-        const minutes = curDate.getMinutes();
-        const semiRandom = `${hours % 12 || hours}${minutes}`
-        const { [field]: value  } = addresses[semiRandom];
+        const storedAddress = await context.store.getItem('address');
+        const address = storedAddress ? JSON.parse(storedAddress) : addresses[randomNumberBetween(0,999)]
+        context.store.setItem('address', JSON.stringify(address))
 
-        return value || " ";
+        return address[field] || " "
       }
     }
 }];
+
+module.exports.responseHooks = [
+  context => context.store.clear()
+]
