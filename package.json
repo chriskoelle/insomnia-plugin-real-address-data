@@ -1,0 +1,10 @@
+{
+  "name": "insomnia-plugin-real-address-data",
+  "version": "0.0.1",
+  "private": true,
+  "insomnia": {
+    "name": "real-address-data",
+    "description": ""
+  },
+  "main": "main.js"
+}
